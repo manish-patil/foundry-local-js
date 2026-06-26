@@ -1,0 +1,94 @@
+import { FoundryLocalManager } from "foundry-local-sdk";
+
+// Initialize the Foundry Local SDK
+console.log("Initializing Foundry Local SDB...");
+
+// init
+const manager = FoundryLocalManager.create({
+  appName: "foudry_local_chat_completions",
+  logLevel: "info",
+});
+
+console.log("✓ SDK initialized successfully");
+
+// Discover available exection providers (EP) and there registration status.
+const eps = manager.discoverEps();
+const maxNameLen = 30;
+
+console.log("\nAvailable execution providers");
+console.log(`   ${"Name".padEnd(maxNameLen)}  Registered`);
+console.log(`   ${"-".repeat(maxNameLen)}  ----------`);
+for (const ep of eps) {
+  console.log(`   ${ep.name.padEnd(maxNameLen)}   ${ep.isRegistered}`);
+}
+
+// Download and register all execution providers with per-EP progress.
+// EP packages include dependencies and may be large.
+// Download is only required again if a new version of the EP is released.
+console.log("\nDownloading execution providers:");
+if (eps.length > 0) {
+  let currentEp = "";
+  await manager.downloadAndRegisterEps((epName, percent) => {
+    if (epName != currentEp) {
+      // Not the first ep - breack line
+      if (currentEp != "") {
+        process.stdout.write("\n");
+      }
+      currentEp = epName;
+    }
+    process.stdout.write(
+      `\r   ${epName.padEnd(maxNameLen)}  ${percent.toFixed(2).padStart(5)}%`,
+    );
+  });
+  process.stdout.write("\n");
+} else {
+  console.log("No execution providers to download.");
+}
+
+// model setup
+// Get the model obkect
+const modelAlias = "qwen2.5-0.5b";
+const catalog = manager.catalog;
+const model = await catalog.getModel(modelAlias);
+
+// Download the model
+console.log(`\nDownloading model ${modelAlias}...`);
+await model.download((progress) => {
+  process.stdout.write(`\rDownloading... ${progress.toFixed(2)}%`);
+});
+console.log("\n✓ Model downloaded");
+
+// Load the model
+console.log(`\n Loading model ${modelAlias}`);
+await model.load();
+console.log("✓ Model loaded");
+
+// Create chat client
+console.log("\nCreating chat client...");
+const chatClient = model.createChatClient();
+console.log("✓ Chat client created");
+
+// Example chat completion
+console.log('\nTesting chat completion...');
+const completion = await chatClient.completeChat([
+    {role: 'user', content: 'Why is the sky blue?'}
+]);
+
+console.log('\nChat completion result:');
+console.log(completion.choices[0]?.message?.content);
+
+// Example streaming completion
+console.log("\nTesting streaming completion...");
+for await (const chunk of chatClient.completeStreamingChat([{role: 'user', content: 'Weite a short poem about programming.'}])) {
+  const content = chunk.choices[0]?.delta?.content;
+
+  if (content) {
+    process.stdout.write(content);
+  }
+}
+console.log("\n");
+
+// Unload the model
+console.log("Unloading model...");
+await model.unload();
+console.log("✓ Model uploaded");
