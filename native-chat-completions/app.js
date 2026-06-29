@@ -5,7 +5,7 @@ console.log("Initializing Foundry Local SDK...");
 
 // init
 const manager = FoundryLocalManager.create({
-  appName: "foudry_local_chat_completions",
+  appName: "foundry_local_chat_completions",
   logLevel: "info",
 });
 

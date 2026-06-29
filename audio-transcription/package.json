@@ -1,0 +1,18 @@
+{
+  "name": "audio-transcription",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "foundry-local-sdk": "latest"
+  },
+  "optionalDependencies": {
+    "foundry-local-sdk-winml": "latest"
+  }
+}
