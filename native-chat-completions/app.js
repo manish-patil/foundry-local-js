@@ -1,7 +1,7 @@
 import { FoundryLocalManager } from "foundry-local-sdk";
 
 // Initialize the Foundry Local SDK
-console.log("Initializing Foundry Local SDB...");
+console.log("Initializing Foundry Local SDK...");
 
 // init
 const manager = FoundryLocalManager.create({
@@ -46,7 +46,7 @@ if (eps.length > 0) {
 }
 
 // model setup
-// Get the model obkect
+// Get the model object
 const modelAlias = "qwen2.5-0.5b";
 const catalog = manager.catalog;
 const model = await catalog.getModel(modelAlias);
